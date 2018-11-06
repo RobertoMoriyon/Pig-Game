@@ -11,7 +11,7 @@ GAME RULES:
 
 //Variables para los scores
 var scores, roundScores, activePlayer, gamePlaying; // esta ultima es para saber si el juego se esta jugando o no
-
+var previousDice, maximo, maxscore;
 init();
 
 //Math.floor() sirve para quitar el decimal
@@ -28,24 +28,41 @@ init();
 
 document.querySelector('.btn-roll').addEventListener('click', function() {
 
+    console.log(maximo);
     if (gamePlaying) {
         //1. Random number
         var dice = Math.floor(Math.random() * 6) + 1;
+        var dice1 = Math.floor(Math.random() * 6) + 1;
+        //var previousDice = 0;
         //2. Display de result
         // Block --> to display de image
         var diceDome = document.querySelector('.dice');
+        var diceDome1 = document.querySelector('.dice1');
         diceDome.style.display = 'block';
+        diceDome1.style.display = 'block';
         diceDome.src = 'dice-' + dice + '.png';
+        diceDome1.src = 'dice-' + dice1 + '.png';
 
         //3. Update the round score IF the rolled number is NOT a 1
-        if (dice !== 1) {
-            //add score
-            roundScore += dice; // roundScore = roundScore + dice;
-            document.querySelector('#current-' + activePlayer).textContent = roundScore;
+        if (dice !== 1 && dice1 !== 1) {
+            if (dice === 6 && previousDice === 6) {
+                console.log('Doble 6: ' + dice);
+                document.querySelector('#score-' + activePlayer).textContent = '0';
+                scores[activePlayer] = 0;
+                nextPlayer();
+            } else {
+                //add score
+                console.log('dice: ' + dice);
+                roundScore += dice + dice1; // roundScore = roundScore + dice;
+                document.querySelector('#current-' + activePlayer).textContent = roundScore;
+                previousDice = dice;
+            }
         } else {
             //next player (usamos la funcion creada)
             nextPlayer();
         }
+        //console.log('dice: ' + dice);
+        console.log('Previosdice: ' + previousDice);
     }
 
 });
@@ -63,7 +80,7 @@ document.querySelector('.btn-hold').addEventListener('click', function() {
         document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
 
         // Comprobamos si el jugador ha ganado el juego
-        if (scores[activePlayer] >= 100) {
+        if (scores[activePlayer] >= maxscore) {
             // el jugador activePlayer actual es el ganador
             document.querySelector('#name-' + activePlayer).textContent = 'Winner!';
             document.querySelector('.dice').style.display = 'none';
@@ -101,6 +118,7 @@ function nextPlayer() {
 
     // si sacamos un 1 borramos el dado para que no lo vea el otro jugador al empezar
     document.querySelector('.dice').style.display = 'none';
+    document.querySelector('.dice1').style.display = 'none';
 }
 
 document.querySelector('.btn-new').addEventListener('click', init);
@@ -113,8 +131,13 @@ function init() {
     activePlayer = 0; // siempre comienza este
     roundScore = 0;
     gamePlaying = true;
+    previousDice = 0;
+    maximo = document.getElementById('max').value;
+    maxscore = maximo;
+
 
     document.querySelector('.dice').style.display = 'none';
+    document.querySelector('.dice1').style.display = 'none';
 
     // vamos a programar el evento cuando clickeamos el botton de roll dice
 
